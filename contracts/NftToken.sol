@@ -6,7 +6,7 @@ import {ERC2981} from "@openzeppelin/contracts/token/common/ERC2981.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract NftToken is ERC721, ERC721URIStorage, ERC2981, Ownable {
-    uint256 private _tokenIdCount;
+    uint256 public _tokenIdCount;
     uint256 public constant MAX_SUPPLY = 10000;
     uint256 public constant MINT_PRICE = 0.01 ether;
 

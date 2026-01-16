@@ -40,4 +40,9 @@ export default defineConfig({
       apiKey: configVariable("ETHERSCAN_API_KEY"),
     },
   },
+  test: {
+    mocha: {
+      timeout: 60000,
+    },
+  },
 });
