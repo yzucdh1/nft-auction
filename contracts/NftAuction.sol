@@ -5,8 +5,11 @@ import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import {IERC2981} from "@openzeppelin/contracts/interfaces/IERC2981.sol";
 import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-contract NftAuction is ReentrancyGuard {
+contract NftAuction is ReentrancyGuard, Initializable, UUPSUpgradeable, OwnableUpgradeable {
     // Placeholder for NftAuction contract code
     struct Auction {
         address seller;           // 卖家地址
@@ -17,6 +20,10 @@ contract NftAuction is ReentrancyGuard {
         address highestBidder;    // 当前最高出价者
         uint256 endTime;          // 拍卖结束时间
         bool active;              // 是否激活
+    }
+
+    constructor() {
+        _disableInitializers();
     }
 
     // 事件定义
@@ -32,6 +39,16 @@ contract NftAuction is ReentrancyGuard {
     address public platformFeeRecipient; // 平台手续费的收款地址
     mapping(uint256=>Auction) public auctions; // auctionId => Auction
     mapping(uint256=>mapping(address=>uint256)) public refunds; // auctionId => refunder => amount
+
+    function initialize(address _platformFeeRecipient) external initializer {
+        __Ownable_init(msg.sender);
+        __UUPSUpgradeable_init();
+        require(_platformFeeRecipient != address(0), "Invalid platform fee recipient");
+        platformFeeRecipient = _platformFeeRecipient;
+    }
+
+    // UUPS升级授权：仅合约所有者可升级
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
     function createAuction (
         address _nftContract,
